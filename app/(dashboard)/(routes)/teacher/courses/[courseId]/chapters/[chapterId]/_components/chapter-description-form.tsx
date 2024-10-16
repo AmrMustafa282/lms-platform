@@ -8,33 +8,36 @@ import { Button } from "@/components/ui/button";
 import {
  Form,
  FormControl,
+ FormDescription,
  FormField,
  FormItem,
  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Chapter, Course } from "@prisma/client";
+import { Editor } from "@/components/editor";
+import { Preview } from "@/components/preview";
 
 const formSchema = z.object({
- title: z.string().min(5, { message: "Title is required" }),
+ description: z.string().min(5),
 });
 
-interface ChapterTitleFormProps {
- initialData: {
-  title: string;
- };
+interface ChapterDescriptionFormProps {
+ initialData: Chapter;
  courseId: string;
  chapterId: string;
 }
 
-export const ChapterTitleForm = ({
+export const ChapterDescriptionForm = ({
  initialData,
  courseId,
  chapterId,
-}: ChapterTitleFormProps) => {
+}: ChapterDescriptionFormProps) => {
  const [isEditing, setIsEditing] = useState(false);
  const router = useRouter();
  const toggleEditing = () => {
@@ -43,7 +46,9 @@ export const ChapterTitleForm = ({
  // 1. Define your form.
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
-  defaultValues: initialData,
+  defaultValues: {
+   description: initialData?.description || "",
+  },
  });
  const { isSubmitting, isValid } = form.formState;
 
@@ -51,7 +56,7 @@ export const ChapterTitleForm = ({
  const onSubmit = async (values: z.infer<typeof formSchema>) => {
   try {
    await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}`, values);
-   toast.success("Chapter title updated successfully.");
+   toast.success("Chapter description updated successfully.");
    toggleEditing();
    router.refresh();
   } catch {
@@ -61,34 +66,41 @@ export const ChapterTitleForm = ({
  return (
   <div className="mt-6 border bg-slate-100 rounded-md p-4">
    <div className="font-medium flex items-center justify-between">
-    Chapter title
+    Chapter description
     <Button variant={"ghost"} onClick={toggleEditing}>
      {isEditing ? (
       <>Cancel</>
      ) : (
       <>
        <Pencil className="h-4 w-4 mr-2" />
-       Edit title
+       Edit description
       </>
      )}
     </Button>
    </div>
    {!isEditing ? (
-    <p className="text-sm mt-2">{initialData.title}</p>
+    <div
+     className={cn(
+      "text-sm mt-2",
+      !initialData.description && "text-slate-500 italic"
+     )}
+    >
+     {initialData.description ? (
+      <Preview value={initialData.description} />
+     ) : (
+      "No description provided."
+     )}
+    </div>
    ) : (
     <Form {...form}>
      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
       <FormField
        control={form.control}
-       name="title"
+       name="description"
        render={({ field }) => (
         <FormItem>
          <FormControl>
-          <Input
-           disabled={isSubmitting}
-           placeholder="e.g. 'Introduction to the course'"
-           {...field}
-          />
+          <Editor {...field} />
          </FormControl>
          <FormMessage />
         </FormItem>
