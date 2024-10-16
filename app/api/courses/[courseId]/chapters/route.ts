@@ -2,36 +2,45 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function DELETE(
+export async function POST(
  req: Request,
- { params }: { params: { courseId: string; attachmentId: string } }
+ { params }: { params: { courseId: string } }
 ) {
  try {
   const { userId } = auth();
-
+  const { title } = await req.json();
+  const { courseId } = params;
   if (!userId) {
    return new NextResponse("Unauthorized", { status: 401 });
   }
+
   const courseOwner = await db.course.findUnique({
    where: {
-    id: params.courseId,
+    id: courseId,
     userId,
+   },
+   include: {
+    chapters: {
+     orderBy: {
+      position: "asc",
+     },
+    },
    },
   });
   if (!courseOwner) {
    return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  await db.attachment.delete({
-   where: {
-    id: params.attachmentId,
-    courseId: params.courseId,
+  const chapter = await db.chapter.create({
+   data: {
+    title,
+    position: courseOwner.chapters.length + 1,
+    courseId,
    },
   });
-
-  return new NextResponse("Attachment deleted successfully.");
+  return NextResponse.json(chapter);
  } catch (error) {
-  console.log("[COURSE_ID_ATTACHMENTS]", error);
+  console.log("[CHAPTERS]", error);
   return new NextResponse("Internal Error", { status: 500 });
  }
 }
