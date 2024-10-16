@@ -30,7 +30,7 @@ interface DescriptionFormProps {
  courseId: string;
 }
 
-const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
+export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
  const [isEditing, setIsEditing] = useState(false);
  const router = useRouter();
  const toggleEditing = () => {
@@ -116,4 +116,4 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
  );
 };
 
-export default DescriptionForm;
+

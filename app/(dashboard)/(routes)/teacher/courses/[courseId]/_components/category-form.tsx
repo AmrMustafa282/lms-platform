@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import {
  Form,
  FormControl,
- FormDescription,
  FormField,
  FormItem,
  FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -31,7 +30,7 @@ interface CategoryFormProps {
  options: { label: string; value: string }[];
 }
 
-const CategoryForm = ({
+export const CategoryForm = ({
  initialData,
  courseId,
  options,
@@ -54,7 +53,7 @@ const CategoryForm = ({
  const onSubmit = async (values: z.infer<typeof formSchema>) => {
   try {
    await axios.patch(`/api/courses/${courseId}`, values);
-   toast.success("Course description updated successfully.");
+   toast.success("Course category updated successfully.");
    toggleEditing();
    router.refresh();
   } catch {
@@ -99,9 +98,7 @@ const CategoryForm = ({
          <FormControl>
           <Combobox options={options} {...field} />
          </FormControl>
-         <FormDescription>
-          This is your course description. Be as detailed as possible.
-         </FormDescription>
+
          <FormMessage />
         </FormItem>
        )}
@@ -117,5 +114,3 @@ const CategoryForm = ({
   </div>
  );
 };
-
-export default CategoryForm;

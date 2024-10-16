@@ -21,7 +21,7 @@ interface ImageFormProps {
  courseId: string;
 }
 
-const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
+export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
  const [isEditing, setIsEditing] = useState(false);
  const router = useRouter();
  const toggleEditing = () => {
@@ -99,5 +99,3 @@ const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
   </div>
  );
 };
-
-export default ImageForm;
