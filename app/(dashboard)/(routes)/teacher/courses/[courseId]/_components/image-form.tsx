@@ -1,8 +1,6 @@
 "use client";
 import * as z from "zod";
 import axios from "axios";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -29,14 +27,6 @@ const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
  const toggleEditing = () => {
   setIsEditing((prev) => !prev);
  };
- // 1. Define your form.
- const form = useForm<z.infer<typeof formSchema>>({
-  resolver: zodResolver(formSchema),
-  defaultValues: {
-   imageUrl: initialData?.imageUrl || "",
-  },
- });
- const { isSubmitting, isValid } = form.formState;
 
  // 2. Define a submit handler.
  const onSubmit = async (values: z.infer<typeof formSchema>) => {
