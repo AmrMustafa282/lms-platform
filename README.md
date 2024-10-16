@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Build an LMS Platform: Next.js 14, React, Stripe, Mux, Prisma, Tailwind, PostgreSQL
 
-## Getting Started
+### *This is a repository for learning and practicing development best-practice and standers and interacting with intersting technoloiges like prisma, mux, uploadthing, stripe*
 
-First, run the development server:
+[VIDEO TUTORIAL](https://www.youtube.com/watch?v=Big_aFLmekI)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Key Features:
+
+- Browse & Filter Courses
+- Purchase Courses using Stripe
+- Mark Chapters as Completed or Uncompleted
+- Progress Calculation of each Course
+- Student Dashboard
+- Teacher mode
+- Create new Courses
+- Create new Chapters
+- Easily reorder chapter position with drag n’ drop
+- Upload thumbnails, attachments and videos using UploadThing
+- Video processing using Mux
+- HLS Video player using Mux
+- Rich text editor for chapter description
+- Authentication using Clerk
+- ORM using Prisma
+- MySQL database using Planetscale
+
+### Getting Started
+
+```shell
+git clone https://github.com/amrmustafa282/lms-platform.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install packages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```shell
+npm i
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Setup .env file
 
-## Learn More
+```js
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+DATABASE_URL=
 
-To learn more about Next.js, take a look at the following resources:
+UPLOADTHING_TOKEN=
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+MUX_TOKEN_ID=
+MUX_TOKEN_SECRET=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+STRIPE_API_KEY=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+STRIPE_WEBHOOK_SECRET=
 
-## Deploy on Vercel
+NEXT_PUBLIC_TEACHER_ID=
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Setup Prisma
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Add PostgreSQL Database (I used [aiven.io](https://console.aiven.io))
+
+```shell
+npx prisma generate
+npx prisma db push
+
+```
+
+### Start the app
+
+```shell
+npm run dev
+```

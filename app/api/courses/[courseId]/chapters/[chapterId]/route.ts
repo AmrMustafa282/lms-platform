@@ -1,6 +1,12 @@
+import Mux from "@mux/mux-node";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+
+const { video } = new Mux({
+ tokenId: process.env.MUX_TOKEN_ID,
+ tokenSecret: process.env.MUX_TOKEN_SECRET,
+});
 
 export async function PATCH(
  req: Request,
@@ -25,7 +31,28 @@ export async function PATCH(
    data: values,
   });
 
-  // TODO : Handle Video Upload
+  if (values.videoUrl) {
+   const existingMuxData = await db.muxData.findFirst({
+    where: { chapterId },
+   });
+   if (existingMuxData) {
+    await video.assets.delete(existingMuxData.assetId);
+    await db.muxData.delete({ where: { id: existingMuxData.id } });
+   }
+   const asset = await video.assets.create({
+    input: values.videoUrl,
+    playback_policy: ["public"],
+    test: false,
+   });
+   await db.muxData.create({
+    data: {
+     assetId: asset.id,
+     chapterId,
+     playbackId: asset.playback_ids?.[0]?.id,
+    },
+   });
+  }
+
   if (!chapter) {
    return new NextResponse("Not Found", { status: 404 });
   }
