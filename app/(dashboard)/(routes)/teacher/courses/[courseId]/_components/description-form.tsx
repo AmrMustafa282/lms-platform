@@ -19,15 +19,14 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Course } from "@prisma/client";
 
 const formSchema = z.object({
  description: z.string().min(10, { message: "Description is required" }),
 });
 
 interface DescriptionFormProps {
- initialData: {
-  description: string;
- };
+ initialData: Course;
  courseId: string;
 }
 
@@ -40,7 +39,9 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
  // 1. Define your form.
  const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
-  defaultValues: initialData,
+  defaultValues: {
+   description: initialData?.description || "",
+  },
  });
  const { isSubmitting, isValid } = form.formState;
 
@@ -116,25 +117,3 @@ const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
 };
 
 export default DescriptionForm;
-
-{
- /* <Form {...form}>
-     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <FormField
-       control={form.control}
-       name="title"
-       render={({ field }) => (
-        <FormItem>
-         <FormLabel>Title</FormLabel>
-         <FormControl>
-          <Input placeholder="shadcn" {...field} />
-         </FormControl>
-         <FormDescription>This is your public display name.</FormDescription>
-         <FormMessage />
-        </FormItem>
-       )}
-      />
-      <Button type="submit">Submit</Button>
-     </form>
-    </Form> */
-}
