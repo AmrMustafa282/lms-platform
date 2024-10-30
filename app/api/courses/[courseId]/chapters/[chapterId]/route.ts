@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {  isCourseOwner } from "@/app/api/utils/is-course-owner";
 import { isAuthorized } from "@/app/api/utils/is-authorized";
+import { revalidatePublishment } from "@/app/api/utils/revalidate-publishment";
 
 const { video } = new Mux({
  tokenId: process.env.MUX_TOKEN_ID,
@@ -83,15 +84,7 @@ export async function DELETE(
     }
     await db.chapter.delete({where: {id: chapterId}});
 
-    const pushlishedChaptersInCourse = await db.chapter.findMany({
-      where: {courseId, isPublished: true},
-     });
-    if(!pushlishedChaptersInCourse.length){
-      await db.course.update({
-        where: {id: courseId},
-        data: {isPublished: false},
-      });
-    }
+    revalidatePublishment(courseId);
 
     return new NextResponse("Chapter deleted successfully", {status: 200});
 

@@ -21,8 +21,28 @@ const ChapterActions = ({
  chapterId,
  isPublished,
 }: ChapterActionsProps) => {
- const [isLoading, setIsLoading] = useState(false);
  const router = useRouter();
+ const [isLoading, setIsLoading] = useState(false);
+ const onClick = async () => {
+  try {
+   setIsLoading(true);
+   if (isPublished) {
+    await axios.patch(
+     `/api/courses/${courseId}/chapters/${chapterId}/unpublish`
+    );
+    toast.success("Chapter unpublished successfully.");
+    router.refresh();
+   } else {
+    await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}/publish`);
+    toast.success("Chapter published successfully.");
+    router.refresh();
+   }
+  } catch (error) {
+   toast.error("An error occurred. Please try again.");
+  } finally {
+   setIsLoading(false);
+  }
+ };
  const onDelete = async () => {
   try {
    setIsLoading(true);
@@ -39,15 +59,15 @@ const ChapterActions = ({
  return (
   <div className="flex items-center gap-x-2 ">
    <Button
-    onClick={() => {}}
-    disabled={disabled}
+    onClick={onClick}
+    disabled={disabled || isLoading}
     variant={"outline"}
     size={"sm"}
    >
     {isPublished ? "Unpublish" : "Publish"}
    </Button>
    <ConfirmModal onConfirm={onDelete}>
-    <Button size={"sm"}>
+    <Button size={"sm"} disabled={isLoading}>
      <Trash className="h-4 w-4" />
     </Button>
    </ConfirmModal>
