@@ -1,3 +1,5 @@
+import { isAuthorized } from "@/app/api/utils/is-authorized";
+import { isCourseOwner } from "@/app/api/utils/is-course-owner";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -7,20 +9,9 @@ export async function DELETE(
  { params }: { params: { courseId: string; attachmentId: string } }
 ) {
  try {
-  const { userId } = auth();
-
-  if (!userId) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
-  const courseOwner = await db.course.findUnique({
-   where: {
-    id: params.courseId,
-    userId,
-   },
-  });
-  if (!courseOwner) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const { userId } = isAuthorized();
+  const { courseId } = params;
+  isCourseOwner({courseId, userId });
 
   await db.attachment.delete({
    where: {

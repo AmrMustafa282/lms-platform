@@ -2,6 +2,8 @@ import Mux from "@mux/mux-node";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import {  isCourseOwner } from "@/app/api/utils/is-course-owner";
+import { isAuthorized } from "@/app/api/utils/is-authorized";
 
 const { video } = new Mux({
  tokenId: process.env.MUX_TOKEN_ID,
@@ -13,18 +15,9 @@ export async function PATCH(
  { params }: { params: { courseId: string; chapterId: string } }
 ) {
  try {
-  const { userId } = auth();
-  if (!userId) {
-   return new NextResponse(null, { status: 401 });
-  }
+  const {userId}  = isAuthorized()
   const { courseId, chapterId } = params;
-  const courseOwner = await db.course.findUnique({
-   where: { id: courseId, userId },
-  });
-  if (!courseOwner) {
-   return new NextResponse(null, { status: 401 });
-  }
-
+  isCourseOwner({ courseId, userId });
   const { isPublished, ...values } = await req.json();
   const chapter = await db.chapter.update({
    where: { id: chapterId, courseId },
@@ -58,7 +51,52 @@ export async function PATCH(
   }
   return NextResponse.json(chapter);
  } catch (error) {
-  console.log("[CHAPTER]", error);
+  console.log("[CHAPTER_ID_PATCH]", error);
   return new NextResponse("Internal Error", { status: 500 });
  }
+}
+
+export async function DELETE(
+  req: Request,{params}: {params: {courseId: string; chapterId: string}}
+){
+  try {
+    const {userId}  = isAuthorized()
+    const {courseId, chapterId} = params;
+    if(!courseId || !chapterId){
+      return new NextResponse("chapterId or courseId is missing", {status: 404});
+    }
+    isCourseOwner({ courseId, userId  });
+    const chapter = await db.chapter.findUnique({
+      where: {id: chapterId, courseId},
+    })
+    if(!chapter){
+      return new NextResponse("Chapter not found", {status: 404});
+    }
+    if(chapter.videoUrl){
+      const muxData = await db.muxData.findFirst({
+        where: {chapterId},
+      });
+      if(muxData){
+        await video.assets.delete(muxData.assetId);
+        await db.muxData.delete({where: {id: muxData.id}});
+      }
+    }
+    await db.chapter.delete({where: {id: chapterId}});
+
+    const pushlishedChaptersInCourse = await db.chapter.findMany({
+      where: {courseId, isPublished: true},
+     });
+    if(!pushlishedChaptersInCourse.length){
+      await db.course.update({
+        where: {id: courseId},
+        data: {isPublished: false},
+      });
+    }
+
+    return new NextResponse("Chapter deleted successfully", {status: 200});
+
+  } catch (error) {
+    console.log("[CHAPTER_ID_DELETE]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
 }

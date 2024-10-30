@@ -1,3 +1,5 @@
+import { isAuthorized } from "@/app/api/utils/is-authorized";
+import { isCourseOwner } from "@/app/api/utils/is-course-owner";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -7,20 +9,10 @@ export async function POST(
  { params }: { params: { courseId: string } }
 ) {
  try {
-  const { userId } = auth();
+  const { userId } = isAuthorized();
+  const {courseId} = params;
   const { url } = await req.json();
-  if (!userId) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
-  const courseOwner = await db.course.findUnique({
-   where: {
-    id: params.courseId,
-    userId,
-   },
-  });
-  if (!courseOwner) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
+  isCourseOwner({courseId, userId });
   const attachment = await db.attachment.create({
    data: {
     url,
@@ -34,5 +26,3 @@ export async function POST(
   return new NextResponse("Internal Error", { status: 500 });
  }
 }
-
-

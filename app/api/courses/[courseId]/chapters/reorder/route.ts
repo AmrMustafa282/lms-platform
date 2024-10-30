@@ -1,5 +1,7 @@
+import { isAuthorized } from "@/app/api/utils/is-authorized";
+import { isCourseOwner } from "@/app/api/utils/is-course-owner";
 import { db } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+
 import { Chapter } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -8,21 +10,10 @@ export async function PUT(
  { params }: { params: { courseId: string } }
 ) {
  try {
-  const { userId } = auth();
+  const { userId } = isAuthorized();
   const { courseId } = params;
-  if (!userId) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
 
-  const courseOwner = await db.course.findUnique({
-   where: {
-    id: courseId,
-    userId,
-   },
-  });
-  if (!courseOwner) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
+  isCourseOwner({courseId, userId });
   const { list }: { list: Chapter[] } = await req.json();
   await Promise.all(
    list.map(async ({ id, position }) => {

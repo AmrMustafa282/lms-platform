@@ -1,3 +1,4 @@
+import { isAuthorized } from "@/app/api/utils/is-authorized";
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -7,12 +8,9 @@ export async function POST(
  { params }: { params: { courseId: string } }
 ) {
  try {
-  const { userId } = auth();
+  const { userId } = isAuthorized();
   const { title } = await req.json();
   const { courseId } = params;
-  if (!userId) {
-   return new NextResponse("Unauthorized", { status: 401 });
-  }
 
   const courseOwner = await db.course.findUnique({
    where: {
