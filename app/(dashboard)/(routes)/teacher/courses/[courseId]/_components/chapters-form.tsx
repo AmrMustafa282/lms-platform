@@ -53,6 +53,7 @@ export const ChaptersForm = ({ initialData, courseId }: ChaptersFormProps) => {
    await axios.post(`/api/courses/${courseId}/chapters`, values);
    toast.success("Chapter created successfully.");
    toggleCreating();
+   form.reset();
    router.refresh();
   } catch {
    toast.error("An error occurred, please try again.");

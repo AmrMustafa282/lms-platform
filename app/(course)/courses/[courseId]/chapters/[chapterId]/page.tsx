@@ -7,6 +7,7 @@ import CourseEnrollButton from "./_components/course-enroll-button";
 import { Separator } from "@/components/ui/separator";
 import { Preview } from "@/components/preview";
 import { File } from "lucide-react";
+import CourseProgressButton from "./_components/course-progress-button";
 
 const ChapterPage = async ({
  params,
@@ -32,7 +33,7 @@ const ChapterPage = async ({
 
  if (!chapter || !course) return redirect("/");
  const isLocked = !chapter.isFree && !purchase;
- const completeOnEnd = !!purchase && userProgress?.isCompleted;
+ const completeOnEnd = !!purchase && !userProgress?.isCompleted;
 
  return (
   <div>
@@ -54,14 +55,19 @@ const ChapterPage = async ({
       nextChapterId={nextChapter?.id!}
       playbackId={muxData?.playbackId!}
       isLocked={isLocked}
-      completeOnEnd={completeOnEnd!}
+      completeOnEnd={completeOnEnd}
      />
     </div>
     <div>
      <div className="p-4 flex flex-col md:flex-row items-center justify-between">
       <h2 className="text-2xl font-semibold mb-2 md:mb-0 ">{chapter.title}</h2>
       {purchase ? (
-       <div>{/* TODO: add courseprogressbutton */}</div>
+       <CourseProgressButton
+        chapterId={params.chapterId}
+        courseId={params.courseId}
+        nextChapterId={nextChapter?.id}
+        isCompleted={!!userProgress?.isCompleted}
+       />
       ) : (
        <CourseEnrollButton courseId={params.courseId} price={course.price!} />
       )}
@@ -80,8 +86,8 @@ const ChapterPage = async ({
           key={attachment.id}
           target="_blank"
           className=" flex items-center p-3 w-full bg-sky-200 border text-sky-700 rounded-md hover:underline "
-          >
-            <File />
+         >
+          <File />
           <p className="line-clamp-1">{attachment.name}</p>
          </a>
         ))}

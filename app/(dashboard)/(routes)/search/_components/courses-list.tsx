@@ -24,7 +24,7 @@ const CoursesList = ({ items }: CoursesListProps) => {
       chaptersLength={item.chapters.length}
       price={item.price!}
       progress={item.progress}
-      category={item.category?.name!}
+      category={item.category?.name || "Uncategorized"}
      />
     ))}
    </div>

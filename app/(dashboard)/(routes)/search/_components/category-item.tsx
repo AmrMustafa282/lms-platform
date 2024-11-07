@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import qs from "query-string";
-import { useEffect, useState } from "react";
 
 import { IconType } from "react-icons/lib";
 
@@ -14,7 +13,6 @@ interface CategoryItemProps {
 }
 
 const CategoryItem = ({ label, icon: Icon, value }: CategoryItemProps) => {
- const [isMounted, setIsMounted] = useState(false);
  const pathname = usePathname();
  const router = useRouter();
  const searchParams = useSearchParams();
@@ -41,10 +39,10 @@ const CategoryItem = ({ label, icon: Icon, value }: CategoryItemProps) => {
   router.push(url);
  };
 
-//  useEffect(() => {
-//   setIsMounted(true);
-//  }, []);
-//  if (!isMounted) return null;
+ //  useEffect(() => {
+ //   setIsMounted(true);
+ //  }, []);
+ //  if (!isMounted) return null;
  return (
   <button
    onClick={onClick}
